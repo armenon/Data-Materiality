@@ -5,8 +5,7 @@
 #include <Arduino.h>
 #include "HX711.h"
 #include <FastLED.h>
-
-#define MAXLEDCOUNT 16
+#include "Constants.h"
 
 typedef enum {
   LED_PIN_1 = 5,
@@ -16,25 +15,35 @@ typedef enum {
 } LED_PIN;
 
 class Platform {
+
 private:
   float weight;
   float thresholdValue;
+  int weightMapping;
+
 
   unsigned int hue;
   unsigned char sat;
   unsigned char val;
-  int pixelCount;
+  int maxPixelCount;
+  int activePixelCount;
+  bool shouldOverloop;
 
   HX711 scale;
   CRGB leds[MAXLEDCOUNT];
 
+  void loopLight();
   void setLight(CHSV value);
+  void checkWeightThreshold();
+  void setWeightFeedback();
+  
 
 public:
   Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float threshold);
   void initialisePlatform();
   void measureWeight();
   void setLedFeedback();
+  void clearLedFeedback();
   float getWeight();
 };
 
