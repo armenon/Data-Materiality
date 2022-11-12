@@ -1,8 +1,11 @@
+#include <Adafruit_Thermal.h>
 #include <FastLED.h>
 #include "HX711.h"
 #include <Eventually.h>
 #include "Constants.h"
 #include "Platform.h"
+
+
 
 
 EvtManager mgr;
@@ -14,12 +17,16 @@ Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 16, 220.0
 
 bool btnAlreadyPressed;
 
+Adafruit_Thermal printer(&Serial1);  // Or Serial2, Serial3, etc.
+
 void setup() {
-  // put your setup code here, to run once:
 
   Serial.begin(9600);
   delay(500);
   Serial.println("HX711 scale demo");
+
+  Serial1.begin(19200);  // Use this instead if using hardware serial
+  printer.begin();
 
   pinMode(BUTTONPIN, INPUT);
 
@@ -33,6 +40,17 @@ void setup() {
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     platforms[i].clearLedFeedback();
   }
+
+  // printer.boldOn();
+  printer.println(F("I'm Ready!"));
+  // printer.boldOff();
+
+  printer.feed(2);
+
+  printer.sleep();       // Tell printer to sleep
+  // delay(3000L);          // Sleep for 3 seconds
+  // printer.wake();        // MUST wake() before printing again, even if reset
+  // printer.setDefault();  // Restore printer to defaults
 }
 
 
@@ -57,6 +75,12 @@ bool check_weights() {
 
     btnAlreadyPressed = false;
 
+    printer.wake();
+    printer.feed(1);
+    printer.println("Guess#");
+    printer.feed(2);
+    printer.sleep();
+
     mgr.resetContext();
     mgr.addListener(new EvtPinListener(BUTTONPIN, (EvtAction)check_weights));
     return true;
@@ -71,4 +95,3 @@ bool set_listener() {
 }
 
 USE_EVENTUALLY_LOOP(mgr)
-
