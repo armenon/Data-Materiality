@@ -7,10 +7,10 @@
 
 EvtManager mgr;
 
-Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 16, 220.0),
+Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 15, 220.0),
                                        Platform(DOUT2, CLK, LED_PIN_2, 16, 600.0),
                                        Platform(DOUT3, CLK, LED_PIN_3, 10, 180.0),
-                                       Platform(DOUT4, CLK, LED_PIN_4, 10, 100.0) };
+                                       Platform(DOUT4, CLK, LED_PIN_4, 9, 100.0) };
 
 bool btnAlreadyPressed;
 int guessCount;
@@ -34,6 +34,7 @@ void setup() {
 
   btnAlreadyPressed = false;
   guessCount = 0;
+  randomSeed(analogRead(0));
   set_listener();
 
   printInitialMessage();
@@ -45,6 +46,7 @@ void setup() {
 
 bool check_weights() {
   if (!btnAlreadyPressed) {
+    mgr.resetContext();
     btnAlreadyPressed = true;
     guessCount++;
 
@@ -72,11 +74,10 @@ bool check_weights() {
       printer.print(" tries to figure it out.");
       printer.feed(2);
       printer.sleep();
+      guessCount = 0;
     }
 
-
-    mgr.resetContext();
-    mgr.addListener(new EvtPinListener(BUTTONPIN, (EvtAction)check_weights));
+    set_listener();
     return true;
   }
   return false;
@@ -85,17 +86,36 @@ bool check_weights() {
 bool set_listener() {
   mgr.resetContext();
   mgr.addListener(new EvtPinListener(BUTTONPIN, (EvtAction)check_weights));
+  // mgr.addListener(new EvtTimeListener(10000, false, (EvtAction)daydream));
   return true;
 }
 
 bool didGetAllWeightsCorrect() {
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     int wgtMap = platforms[i].getWeightMapping();
-    // Serial.print("Looping ");
     if ((wgtMap < 49) || (wgtMap > 55))
       return false;
   }
   return true;
+}
+
+bool daydream() {
+  Serial.println("Daydreaming");
+  printer.wake();
+  printer.println(F("Sigh... I'm bored"));
+  printer.feed(2);
+  printer.sleep();
+
+  switch (rand() % 4) {
+    case 0:platforms[0].lightFX();break;
+    case 1:platforms[1].lightFX();break;
+    case 2:platforms[2].lightFX();break;
+    case 3:platforms[3].lightFX();break;
+    default:platforms[0].lightFX();
+  }
+  
+  // set_listener();
+  return false;
 }
 
 void printInitialMessage() {
@@ -107,7 +127,7 @@ void printInitialMessage() {
   printer.println(F("My purpose is to help you figure out how much CO2 emissions were emitted for this food product placed on me."));
   printer.feed(1);
   printer.println(F("Go ahead, pick up some of those Carbon pieces. Feel them!"));
-  printer.feed(1);
+  printer.feed(2);
   delay(5000);
   printer.println(F("Now try to guess by feeling how much carbon was emitted for a particular part of this food's story and place that many carbon pieces on that particular platform!"));
   printer.feed(1);

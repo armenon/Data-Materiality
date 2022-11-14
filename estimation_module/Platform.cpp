@@ -12,7 +12,7 @@ Platform::Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int 
   shouldOverloop = false;
 
   switch (ledPin) {
-    case LED_PIN_1: FastLED.addLeds<WS2812B, LED_PIN_1>(leds, MAXLEDCOUNT); break;
+    case LED_PIN_1: FastLED.addLeds<WS2812B, LED_PIN_1, RGB>(leds, MAXLEDCOUNT); break;
     case LED_PIN_2: FastLED.addLeds<WS2812B, LED_PIN_2>(leds, MAXLEDCOUNT); break;
     case LED_PIN_3: FastLED.addLeds<WS2812B, LED_PIN_3>(leds, MAXLEDCOUNT); break;
     case LED_PIN_4: FastLED.addLeds<WS2812B, LED_PIN_4>(leds, MAXLEDCOUNT); break;
@@ -56,6 +56,17 @@ void Platform::setLight(CHSV value) {
   }
 }
 
+void Platform::lightFX() {
+  uint8_t BeatsPerMinute = 48;
+  uint8_t gHue = 0;  // rotating "base color" used by many of the patterns
+  CRGBPalette16 palette = PartyColors_p;
+  uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
+  for (int i = 0; i < maxPixelCount; i++) {  //9948
+    leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
+  }
+  FastLED.show();
+}
+
 void Platform::loopLight() {
   for (int i = 0; i < maxPixelCount; i++) {
     leds[i] = CHSV(195, 255, 255);
@@ -74,6 +85,8 @@ void Platform::loopLight() {
       (maxPixelCount > 10) ? delay(25) : delay(40);
     }
   }
+  // lightFX();
+  // (maxPixelCount > 10) ? delay(40) : delay(80);
   for (int i = maxPixelCount; i >= 0; i--) {
     leds[i] = CRGB::Black;
     FastLED.show();
@@ -91,7 +104,7 @@ float Platform::getWeight() {
   return weight;
 }
 
-int Platform:: getWeightMapping(){
+int Platform::getWeightMapping() {
   return weightMapping;
 }
 

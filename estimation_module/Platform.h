@@ -31,11 +31,12 @@ private:
   HX711 scale;
   CRGB leds[MAXLEDCOUNT];
 
+
   void loopLight();
   void setLight(CHSV value);
   void checkWeightThreshold();
   void setWeightFeedback();
-  
+
 
 public:
   Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float threshold);
@@ -45,6 +46,7 @@ public:
   void clearLedFeedback();
   float getWeight();
   int getWeightMapping();
+  void lightFX();
 };
 
 #endif
