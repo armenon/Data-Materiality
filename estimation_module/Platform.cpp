@@ -91,6 +91,10 @@ float Platform::getWeight() {
   return weight;
 }
 
+int Platform:: getWeightMapping(){
+  return weightMapping;
+}
+
 void Platform::checkWeightThreshold() {
   weightMapping = map((int)weight, 0, (int)thresholdValue * 2, 0, 100);
   // Serial.print((int)thresholdValue *-1); Serial.print("\t");

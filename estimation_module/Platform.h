@@ -21,7 +21,6 @@ private:
   float thresholdValue;
   int weightMapping;
 
-
   unsigned int hue;
   unsigned char sat;
   unsigned char val;
@@ -45,6 +44,7 @@ public:
   void setLedFeedback();
   void clearLedFeedback();
   float getWeight();
+  int getWeightMapping();
 };
 
 #endif
