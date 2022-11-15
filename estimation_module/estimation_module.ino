@@ -4,13 +4,13 @@
 #include <Eventually.h>
 #include "Platform.h"
 
-
 EvtManager mgr;
+float arrayOfThresholds[4][2] = { { 220.0, 120.0 }, { 600.0, 200.0 }, { 180.0, 200.0 }, { 100.0, 100.0 } };
 
-Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 15, 220.0),
-                                       Platform(DOUT2, CLK, LED_PIN_2, 16, 600.0),
-                                       Platform(DOUT3, CLK, LED_PIN_3, 10, 180.0),
-                                       Platform(DOUT4, CLK, LED_PIN_4, 9, 100.0) };
+Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 15, arrayOfThresholds[0], 2),
+                                       Platform(DOUT2, CLK, LED_PIN_2, 16, arrayOfThresholds[1], 2),
+                                       Platform(DOUT3, CLK, LED_PIN_3, 10, arrayOfThresholds[2], 2),
+                                       Platform(DOUT4, CLK, LED_PIN_4, 9, arrayOfThresholds[3], 2) };
 
 bool btnAlreadyPressed;
 int guessCount;
@@ -27,6 +27,7 @@ void setup() {
   printer.begin();
 
   pinMode(BUTTONPIN, INPUT);
+  pinMode(CHGPRDCTBTNPIN, INPUT);
 
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     platforms[i].initialisePlatform();
@@ -34,10 +35,10 @@ void setup() {
 
   btnAlreadyPressed = false;
   guessCount = 0;
-  randomSeed(analogRead(0));
+  // randomSeed(analogRead(0));
   set_listener();
 
-  printInitialMessage();
+  // printInitialMessage();
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     platforms[i].clearLedFeedback();
   }
@@ -68,11 +69,12 @@ bool check_weights() {
     btnAlreadyPressed = false;
     if (didGetAllWeightsCorrect()) {
       printer.wake();
-      printer.setSize('L');
+      printer.setSize('M');
       printer.print("So it took you about ");
+      //  printer.print("This is your ");
       printer.print(guessCount);
-      printer.print(" tries to figure it out.");
-      printer.feed(2);
+      printer.print(" tries to figure this out.");
+      printer.feed(4);
       printer.sleep();
       guessCount = 0;
     }
@@ -80,12 +82,30 @@ bool check_weights() {
     set_listener();
     return true;
   }
-  return false;
+  return true;
+}
+
+bool change_product() {
+  //  Serial.println("Changing products");
+  if (!btnAlreadyPressed) {
+    mgr.resetContext();
+   
+    btnAlreadyPressed = true;
+    for (int i = 0; i < NUMOFPLATFORMS; i++) {
+      platforms[i].changeFoodProduct();
+    }
+    btnAlreadyPressed = false;
+    guessCount = 0;
+    set_listener();
+    return true;
+  }
+  return true;
 }
 
 bool set_listener() {
   mgr.resetContext();
   mgr.addListener(new EvtPinListener(BUTTONPIN, (EvtAction)check_weights));
+  mgr.addListener(new EvtPinListener(CHGPRDCTBTNPIN, (EvtAction)change_product));
   // mgr.addListener(new EvtTimeListener(10000, false, (EvtAction)daydream));
   return true;
 }
@@ -99,24 +119,24 @@ bool didGetAllWeightsCorrect() {
   return true;
 }
 
-bool daydream() {
-  Serial.println("Daydreaming");
-  printer.wake();
-  printer.println(F("Sigh... I'm bored"));
-  printer.feed(2);
-  printer.sleep();
+// bool daydream() {
+//   Serial.println("Daydreaming");
+//   printer.wake();
+//   printer.println(F("Sigh... I'm bored"));
+//   printer.feed(2);
+//   printer.sleep();
 
-  switch (rand() % 4) {
-    case 0:platforms[0].lightFX();break;
-    case 1:platforms[1].lightFX();break;
-    case 2:platforms[2].lightFX();break;
-    case 3:platforms[3].lightFX();break;
-    default:platforms[0].lightFX();
-  }
-  
-  // set_listener();
-  return false;
-}
+//   switch (rand() % 4) {
+//     case 0:platforms[0].lightFX();break;
+//     case 1:platforms[1].lightFX();break;
+//     case 2:platforms[2].lightFX();break;
+//     case 3:platforms[3].lightFX();break;
+//     default:platforms[0].lightFX();
+//   }
+
+//   // set_listener();
+//   return false;
+// }
 
 void printInitialMessage() {
   printer.setSize('M');

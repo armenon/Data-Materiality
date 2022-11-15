@@ -1,15 +1,21 @@
 #include "Platform.h"
 
-Platform::Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float threshold = 0.0) {
-  thresholdValue = threshold;
+Platform::Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float thresholds[], int numOfFoods) {
+
   hue = 0;
   sat = 0;
   val = 0;
   maxPixelCount = numberOfPixels;
   activePixelCount = maxPixelCount;
+  numOfStoredFoods = numOfFoods;
   weight = 0.0;
   weightMapping = 0;
   shouldOverloop = false;
+  currentFoodProduct = 0;
+
+  for (int i = 0; i < numOfStoredFoods; i++) {
+    thresholdValues[i] = thresholds[i];
+  }
 
   switch (ledPin) {
     case LED_PIN_1: FastLED.addLeds<WS2812B, LED_PIN_1, RGB>(leds, MAXLEDCOUNT); break;
@@ -69,9 +75,10 @@ void Platform::lightFX() {
 
 void Platform::loopLight() {
   for (int i = 0; i < maxPixelCount; i++) {
-    leds[i] = CHSV(195, 255, 255);
+    leds[i] = CHSV(215, 255, 255);
+    // leds[i] = CRGB::Purple;
     FastLED.show();
-    (maxPixelCount > 10) ? delay(25) : delay(40);
+    (maxPixelCount > 10) ? delay(35) : delay(50);
   }
   if (shouldOverloop) {
     Serial.println("Överlooping");
@@ -109,17 +116,21 @@ int Platform::getWeightMapping() {
 }
 
 void Platform::checkWeightThreshold() {
-  weightMapping = map((int)weight, 0, (int)thresholdValue * 2, 0, 100);
+  if (weight > (thresholdValues[currentFoodProduct] * 2)) {
+    weightMapping = 100;
+    return;
+  }
+  weightMapping = map((int)weight, 0, (int)thresholdValues[currentFoodProduct] * 2.5, 0, 100);
   // Serial.print((int)thresholdValue *-1); Serial.print("\t");
   // Serial.print((int)thresholdValue *3); Serial.print("\t");
-  // Serial.println(weightMapping);
+  Serial.println(weightMapping);
   // return y;
 }
 
 void Platform::setWeightFeedback() {
   if (weightMapping < 49) {
-    hue = 195;
-    sat = 255;
+    hue = 215;
+    sat = 25;
     val = 255;
     activePixelCount = map(weightMapping, 0, 49, 1, maxPixelCount);
     shouldOverloop = false;
@@ -136,4 +147,18 @@ void Platform::setWeightFeedback() {
     activePixelCount = map(weightMapping, 55, 100, 1, maxPixelCount);
     shouldOverloop = true;
   }
+}
+
+void Platform::changeFoodProduct() {
+  currentFoodProduct++;
+  if (currentFoodProduct >= numOfStoredFoods)
+    currentFoodProduct = 0;
+  Serial.print("Current Food Prduct");
+  Serial.println(currentFoodProduct);
+  hue = 200;
+  sat = 125;
+  val = 255;
+  setLedFeedback();
+  delay(50);
+  clearLedFeedback();
 }

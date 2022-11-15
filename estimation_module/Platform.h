@@ -18,8 +18,10 @@ class Platform {
 
 private:
   float weight;
-  float thresholdValue;
+  float thresholdValues[3];
   int weightMapping;
+  int numOfStoredFoods;
+  int currentFoodProduct;
 
   unsigned int hue;
   unsigned char sat;
@@ -39,14 +41,15 @@ private:
 
 
 public:
-  Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float threshold);
-  void initialisePlatform();
-  void measureWeight();
-  void setLedFeedback();
-  void clearLedFeedback();
+  Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int numberOfPixels, float thresholds[], int numOfFoods);
+  void  initialisePlatform();
+  void  measureWeight();
+  void  setLedFeedback();
+  void  clearLedFeedback();
   float getWeight();
-  int getWeightMapping();
-  void lightFX();
+  int   getWeightMapping();
+  void  lightFX();
+  void  changeFoodProduct();
 };
 
 #endif

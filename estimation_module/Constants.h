@@ -1,5 +1,3 @@
-
-
 #define calibration_factor -7050.0  //This value is obtained using the SparkFun_HX711_Calibration sketch
 #define DELAYVAL 500                // Time (in milliseconds) to pause between pixels
 
@@ -15,9 +13,8 @@
 #define NUMPIXELS 14
 #define NUMOFPLATFORMS 4
 #define NUMOFFOODS 1
-#define BUTTONPIN 1
+#define BUTTONPIN A2
+#define CHGPRDCTBTNPIN A1
 
 #define MAXLEDCOUNT 16
-
-
 
