@@ -18,7 +18,7 @@ class Platform {
 
 private:
   float weight;
-  float thresholdValues[3];
+  float thresholdValues[NUMOFFOODS];
   int weightMapping;
   int numOfStoredFoods;
   int currentFoodProduct;

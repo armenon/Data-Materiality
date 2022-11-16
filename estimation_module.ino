@@ -16,6 +16,9 @@ Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 15, array
 
 bool btnAlreadyPressed;
 int guessCount;
+
+bool didGetAllWgtsForCurrentFoodProduct[NUMOFFOODS];
+
 Adafruit_Thermal printer1(&Serial1);
 
 void setup() {
@@ -29,6 +32,7 @@ void setup() {
 
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     platforms[i].initialisePlatform();
+    didGetAllWgtsForCurrentFoodProduct[i] = false;
   }
 
   btnAlreadyPressed = false;
@@ -36,12 +40,12 @@ void setup() {
 
   set_listener();
 
-  initialisePrinter(&printer1);
-  printInitialMessage(&printer1);
-
   for (int i = 0; i < NUMOFPLATFORMS; i++) {
     platforms[i].clearLedFeedback();
   }
+
+  initialisePrinter(&printer1);
+  printInitialMessage(&printer1);
 }
 
 
@@ -97,7 +101,7 @@ bool print_product_info() {
   if (!btnAlreadyPressed) {
     mgr.resetContext();
     btnAlreadyPressed = true;
-    printProductInfo(&printer1, platforms[0].getCurrentFoodProduct());
+    printProductInfo(&printer1, platforms[0].getCurrentFoodProduct(), didGetAllWgtsForCurrentFoodProduct[platforms[0].getCurrentFoodProduct()]);
     btnAlreadyPressed = false;
     set_listener();
     return true;
@@ -120,7 +124,10 @@ bool didGetAllWeightsCorrect() {
     if ((wgtMap < THRESHOLD_LOWERBOUND) || (wgtMap > THRESHOLD_UPPERBOUND))
       return false;
   }
+  didGetAllWgtsForCurrentFoodProduct[platforms[0].getCurrentFoodProduct()] = true;
   return true;
 }
+
+
 
 USE_EVENTUALLY_LOOP(mgr)

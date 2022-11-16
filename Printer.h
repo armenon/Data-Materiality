@@ -19,7 +19,7 @@ void initialisePrinter(Adafruit_Thermal *printer);
 void printInitialMessage(Adafruit_Thermal *printer);
 void printTryCount(Adafruit_Thermal *printer, int tryCount);
 
-void printProductInfo(Adafruit_Thermal *printer, int currentProduct);
+void printProductInfo(Adafruit_Thermal *printer, int currentProduct, bool isAllWgtsCorrect);
 // };
 
 
