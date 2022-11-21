@@ -18,13 +18,14 @@ Platform::Platform(int loadCellDataPin, int loadCellClkPin, LED_PIN ledPin, int 
   }
 
   switch (ledPin) {
-    case LED_PIN_1: FastLED.addLeds<WS2812, LED_PIN_1, GRB>(leds, MAXLEDCOUNT); break;
+    case LED_PIN_1: FastLED.addLeds<WS2812B, LED_PIN_1, GRB>(leds, MAXLEDCOUNT); break;
     case LED_PIN_2: FastLED.addLeds<WS2812B, LED_PIN_2, GRB>(leds, MAXLEDCOUNT); break;
     case LED_PIN_3: FastLED.addLeds<WS2812B, LED_PIN_3, GRB>(leds, MAXLEDCOUNT); break;
     case LED_PIN_4: FastLED.addLeds<WS2812B, LED_PIN_4, GRB>(leds, MAXLEDCOUNT); break;
     default: FastLED.addLeds<NEOPIXEL, LED_PIN_1>(leds, MAXLEDCOUNT); break;
   }
   FastLED.setBrightness(255);
+  set_max_power_in_volts_and_milliamps(5, 500);  
 
   scale.begin(loadCellDataPin, loadCellClkPin);
 }
@@ -68,9 +69,9 @@ void Platform::lightFX() {
 }
 
 void Platform::loopLight() {
+
   for (int i = 0; i < maxPixelCount; i++) {
-    leds[i] = CHSV(215, 255, 255);
-    // leds[i] = CRGB::Purple;
+    leds[i] = CHSV(43, 255, 255);
     FastLED.show();
     (maxPixelCount > 10) ? delay(35) : delay(60);
   }
@@ -80,8 +81,12 @@ void Platform::loopLight() {
       leds[i] = CRGB::Black;
       FastLED.show();
     }
-    for (int i = 0; i < maxPixelCount; i++) {
-      leds[i] = CHSV(33, 255, 255);
+    for (int i = maxPixelCount; i >= 0; i--) {
+      leds[i] = CRGB::White;
+      FastLED.show();
+    }
+    for (int i = 0; i < activePixelCount; i++) {
+      leds[i] = CHSV(215, 255, 255); 
       FastLED.show();
       (maxPixelCount > 10) ? delay(35) : delay(60);
     }
@@ -109,7 +114,7 @@ int Platform::getWeightMapping() {
 }
 
 void Platform::checkWeightThreshold() {
-  Serial.print((int)thresholdValues[currentFoodProduct]); Serial.print("\t"); Serial.print((int)thresholdValues[currentFoodProduct] *2); Serial.print("\t"); 
+  // Serial.print((int)thresholdValues[currentFoodProduct]); Serial.print("\t"); Serial.print((int)thresholdValues[currentFoodProduct] *2); Serial.print("\t"); 
   Serial.print(weightMapping); Serial.print("\t");
   if (weight > (thresholdValues[currentFoodProduct] *2)) {
     weightMapping = 100;
@@ -120,7 +125,7 @@ void Platform::checkWeightThreshold() {
 
 void Platform::setWeightFeedback() {
   if (weightMapping < THRESHOLD_LOWERBOUND) {
-    hue = 215; sat = 255; val = 255;
+    hue = 33; sat = 255; val = 255;
     activePixelCount = map(weightMapping, 0, THRESHOLD_LOWERBOUND, 1, maxPixelCount);
     shouldOverloop = false;
   } else if (weightMapping >= THRESHOLD_LOWERBOUND && weightMapping <= THRESHOLD_UPPERBOUND) {
@@ -128,7 +133,7 @@ void Platform::setWeightFeedback() {
     activePixelCount = maxPixelCount;
     shouldOverloop = false;
   } else {
-    hue = 33; sat = 255; val = 255;
+    hue = 215; sat = 255; val = 255;
     activePixelCount = map(weightMapping, THRESHOLD_UPPERBOUND, 100, 1, maxPixelCount);
     shouldOverloop = true;
   }

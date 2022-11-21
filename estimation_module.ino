@@ -4,10 +4,10 @@
 
 EvtManager mgr;
 
-float arrayOfThresholds[NUMOFPLATFORMS][NUMOFFOODS] = { { 1610.1, 10.0, 740.0 },  // Agriculture  - Hamburger (150g), Asparagus, Cheese (150g)
-                                                        { 70.0, 1900.0, 700.0 },  // Transport    - Hamburger (150g), Asparagus, Cheese (150g)
-                                                        { 80.0, 10.0, 360.0 },    // Processing   - Hamburger (150g), Asparagus, Cheese (150g)
-                                                        { 70.0, 10.0, 100.0 } };  // Packaging    - Hamburger (150g), Asparagus, Cheese (150g)
+float arrayOfThresholds[NUMOFPLATFORMS][NUMOFFOODS] = { { 1610.0, 100.0, 740.0 },   // Agriculture  - Hamburger (150g), Asparagus, Cheese (150g)
+                                                        { 85.0, 10.0, 360.0 },      // Processing   - Hamburger (150g), Asparagus, Cheese (150g)
+                                                        { 70.0, 100.0, 180.0 },     // Packaging    - Hamburger (150g), Asparagus, Cheese (150g)
+                                                        { 70.0, 1900.0, 105.0 } };  // Transport    - Hamburger (150g), Asparagus, Cheese (150g)
 
 Platform platforms[NUMOFPLATFORMS] = { Platform(DOUT1, CLK, LED_PIN_1, 15, arrayOfThresholds[0], NUMOFFOODS),
                                        Platform(DOUT2, CLK, LED_PIN_2, 16, arrayOfThresholds[1], NUMOFFOODS),
@@ -45,7 +45,7 @@ void setup() {
   }
 
   initialisePrinter(&printer1);
-  printInitialMessage(&printer1);
+ // printInitialMessage(&printer1);
 }
 
 
@@ -99,9 +99,11 @@ bool change_product() {
 
 bool print_product_info() {
   if (!btnAlreadyPressed) {
+    Serial.println("I should be printing this");
     mgr.resetContext();
     btnAlreadyPressed = true;
-    printProductInfo(&printer1, platforms[0].getCurrentFoodProduct(), didGetAllWgtsForCurrentFoodProduct[platforms[0].getCurrentFoodProduct()]);
+    // printProductInfo(&printer1, platforms[0].getCurrentFoodProduct(), didGetAllWgtsForCurrentFoodProduct[platforms[0].getCurrentFoodProduct()]);
+    printProductInfo(&printer1, platforms[0].getCurrentFoodProduct(), true);
     btnAlreadyPressed = false;
     set_listener();
     return true;
